@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Running tests"
 
 BODY=$(curl -s http://localhost:3001/dashboards)
 FAILED_TESTS=0
