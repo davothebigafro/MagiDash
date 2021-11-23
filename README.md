@@ -2,7 +2,7 @@
 
 ### Running the environment
 
-To run the environment, run `docker-compose up --force-recreate` in the terminal. This will bring up the terminal and the "fake" api service.
+To run the environment, run `docker-compose up --force-recreate` in the terminal.
 
 Once the environment is running, in another shell you should be able to run `./smoke_tests.sh` which will test that the api service returns at least one dashboard and it has the correct properties.
 
