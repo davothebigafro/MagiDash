@@ -4,21 +4,47 @@ services:
   mysql-db:
     image: mysql:5
     ports:
-      - 3306:3306
+      - $MYSQL_PORT:$MYSQL_PORT
+
+    networks:
+      - dashboard-app
     environment:
-      MYSQL_ROOT_PASSWORD: test123
-      MYSQL_DATABASE: definitions
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
       - ./database:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "mysql -ptest123 -e 'select 1'"]
+      test: [ "CMD-SHELL", "mysql -ptest123 -e 'select 1'" ]
       interval: 5s
       retries: 50
+  
+  react-app:
+    build: ./client   
+    stdin_open: true
+    ports:
+      - $CLIENT_PORT:$CLIENT_PORT
+    networks:
+      - dashboard-app
+    depends_on:
+      - api
+      - mysql-db
 
   api:
-    image: nginx:latest
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+    build: ./server
     ports:
-      - 80:80
-      - 443:443
+      - $NODE_PORT:$NODE_PORT
+    networks:
+      - dashboard-app
+    environment:
+      DB_HOST: mysql-db
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_PORT: ${MYSQL_PORT}
+      NODE_PORT: ${NODE_PORT}
+    depends_on:
+      - mysql-db
+
+networks:
+  dashboard-app:
+    driver: bridge
